@@ -77,7 +77,7 @@ async def init(context):
 @client.command(pass_context=True)
 async def resa(context):
     message = context.message
-    user_name = str(message.author.nick) if message.author.nick else str(message.author.name)
+    user_name = str(message.author.nick) if message.author.nick else str(message.author.global_name) if message.author.global_name else str(message.author.name)
     if message.author == client.user:
         return
 
