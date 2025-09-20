@@ -88,7 +88,7 @@ async def resa(context):
         return
     
     else:
-        react = ["✅", ":x:"]
+        react = ["✅", "❌"]
         confirm_message = await message.channel.send(f"Réserver pour '{matched_zone}'? {message.author.mention}")
         for r in react:
             await confirm_message.add_reaction(r)
@@ -102,7 +102,7 @@ async def resa(context):
             return
         
         else:
-            if str(reaction.emoji) == ":x:":
+            if str(reaction.emoji) == "❌":
                 confirm_message.delete()
                 return
             else: 
@@ -131,7 +131,7 @@ async def clear(context):
         return
 
     else:
-        react = ["✅", ":x:"]
+        react = ["✅", "❌"]
         confirm_message = await message.channel.send(f"Supprimer la réservation de '{matched_zone}'? {message.author.mention}")
         for r in react:
             await confirm_message.add_reaction(r)
@@ -145,7 +145,7 @@ async def clear(context):
             return
         
         else:
-            if str(reaction.emoji) == ":x:":
+            if str(reaction.emoji) == "❌":
                 confirm_message.delete()
                 return
             else: 
