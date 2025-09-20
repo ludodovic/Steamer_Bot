@@ -59,6 +59,13 @@ def get_master_message_content():
 async def update_master_message():
     await client.master_message.edit(content=get_master_message_content(), embeds = client.master_message_embed_list)
 
+async def send_user_message(user_id, content):
+    try:
+        user = client.get_user(user_id) 
+        await user.send(content)
+    except Exception as e:
+        print(f"Error sending message to user : {e}")
+
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')    
@@ -66,6 +73,7 @@ async def on_ready():
 @client.command(pass_context=True)
 async def initialize(context):
     message = context.message
+    await send_user_message(169098343362985984, f"Initialisation en cours sur {message.guild.name}")
     if client.initialized:
         return
     else:
