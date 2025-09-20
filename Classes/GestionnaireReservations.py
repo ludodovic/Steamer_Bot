@@ -50,7 +50,10 @@ class GestionnaireReservations:
         if nbr_reservations >= 3 or zone_reservations_count >= 5:
             return None, False
         else:
-            return reservation["exp_date"], self.collection.insert_one(reservation).acknowledged
+            if len(list(self.collection.find_one({"user_id": reservation["user_id"], "zone": reservation["zone"]}))) > 0:
+                return None, False
+            else:
+                return reservation["exp_date"], self.collection.insert_one(reservation).acknowledged
     
     def fuzzy_match_zone_by_name(self, query_zone):
         coef = 0
