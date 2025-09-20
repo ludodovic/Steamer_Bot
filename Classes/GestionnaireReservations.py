@@ -30,7 +30,6 @@ class GestionnaireReservations:
         return reservation
     
     def try_reservation(self, reservation):
-        self.purge_expired_reservations()
         if reservation is None:
             return None, False
         try:
@@ -65,7 +64,6 @@ class GestionnaireReservations:
         return best_match if coef >= 65 else ""
     
     def get_table_string(self):
-        self.purge_expired_reservations()
 
         cursor = self.collection.find({}).sort('date', ASCENDING)
         reservation_by_zone = {}
@@ -91,7 +89,6 @@ class GestionnaireReservations:
         return output
     
     def delete_reservation(self, user_id, zone_name):
-        self.purge_expired_reservations()
         if user_id != "" and zone_name != "":
             result = self.collection.delete_one({"user_id": user_id, "zone": zone_name})
             return result.deleted_count > 0
@@ -99,5 +96,9 @@ class GestionnaireReservations:
     
     def purge_expired_reservations(self):
         now = datetime.now()
+        expired_to_notify = list(self.collection.find({"exp_date": {"$lt": now}}, {"_id": 0, "user_id": 1, "zone": 1}))
         result = self.collection.delete_many({"exp_date": {"$lt": now}})
-        return result.deleted_count
+        next_turn_to_notify = []
+        for r in expired_to_notify:
+            next_turn_to_notify.append(self.collection.find_one({"zone": r["zone"]}, {"_id": 0, "user_id": 1, "zone": 1}, sort=[("date", ASCENDING)]))
+        return {"deleted_count": result.deleted_count, "to_notify": expired_to_notify, "next_turn": next_turn_to_notify}

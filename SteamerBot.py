@@ -59,6 +59,19 @@ def get_master_message_content():
 async def update_master_message():
     await client.master_message.edit(content=get_master_message_content(), embeds = client.master_message_embed_list)
 
+async def update_users_about_reservations():
+    expired_info = gestionnaire_resa.purge_expired_reservations()
+    for info in expired_info["to_notify"]:
+        user_id = int(info["user_id"])
+        zone = info["zone"]
+        await send_user_message(user_id, f"[SCTV] Ta réservation pour la zone '{zone}' a expiré. N'hésite pas à en réserver une nouvelle !")
+    
+    for info in expired_info["next_turn"]:
+        if info is not None:
+            user_id = int(info["user_id"])
+            zone = info["zone"]
+            await send_user_message(user_id, f"[SCTV] C'est à ton tour ! La réservation pour la zone '{zone}' est maintenant active pour toi. Profites-en !")
+
 async def send_user_message(user_id, content):
     try:
         user = client.get_user(user_id) 
@@ -81,9 +94,11 @@ async def initialize(context):
             return m.author == client.user
         await message.channel.purge(limit=10, check=is_me)
         client.master_message = await message.channel.send(content=get_master_message_content(), embeds = client.master_message_embed_list)
+    await update_users_about_reservations()
 
 @client.command(pass_context=True)
 async def resa(context):
+    await update_users_about_reservations()
     message = context.message
     user_name = str(message.author.nick) if message.author.nick else str(message.author.global_name) if message.author.global_name else str(message.author.name)
     if message.author == client.user:
@@ -166,11 +181,13 @@ async def clear(context):
                     else:
                         await message.channel.send(f"[{user_name}] Réservation terminée pour la zone '{matched_zone}' ! La place est libérée.", delete_after=20.0)
                         await update_master_message()
+    await update_users_about_reservations()
 
 @client.command(pass_context=True)
 async def update(context):
     message = context.message
     await update_master_message()
+    await update_users_about_reservations()
 
 @client.event
 async def on_message(message):
