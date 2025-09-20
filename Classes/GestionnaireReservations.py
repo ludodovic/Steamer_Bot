@@ -32,7 +32,7 @@ class GestionnaireReservations:
     def try_reservation(self, reservation):
         self.purge_expired_reservations()
         if reservation is None:
-            return False
+            return None, False
         try:
             user_reservations = self.collection.find({"user_id": reservation["user_id"]})
             nbr_reservations = len(list(user_reservations))
@@ -41,7 +41,7 @@ class GestionnaireReservations:
             zone_reservations_count = len(list(zone_reservations))
         except Exception as e:
             print(f"Error querying reservations: {e}")
-            return False
+            return None, False
         # get the lastest reservation for the zone if it exists
         last_zone_reservation = self.collection.find_one({"zone": reservation["zone"]},sort=[("date", DESCENDING)])
         if last_zone_reservation is not None:
