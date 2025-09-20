@@ -1,0 +1,29 @@
+{
+  "content": "",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 159261302,
+      "title": "/resa *[nom de la zone]*",
+      "description": "Permet de réserver une zone à votre nom",
+      "color": 3009315,
+      "fields": []
+    },
+    {
+      "id": 980837419,
+      "title": "/clear *[nom de la zone]*",
+      "description": "Libère une zone reservée à votre nom",
+      "color": 15432995,
+      "fields": []
+    },
+    {
+      "id": 817808829,
+      "title": "/update",
+      "color": 2326507,
+      "fields": []
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0
+}
