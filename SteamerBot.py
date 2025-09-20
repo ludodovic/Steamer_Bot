@@ -98,12 +98,12 @@ async def resa(context):
         try:
             reaction, user = await client.wait_for('reaction_add', timeout=10.0, check=check)
         except asyncio.TimeoutError:
-            confirm_message.delete()
+            await confirm_message.delete()
             return
         
         else:
             if str(reaction.emoji) == "❌":
-                confirm_message.delete()
+                await confirm_message.delete()
                 return
             else: 
                 if str(reaction.emoji) == "✅":
@@ -141,12 +141,12 @@ async def clear(context):
         try:
             reaction, user = await client.wait_for('reaction_add', timeout=10.0, check=check)
         except asyncio.TimeoutError:
-            confirm_message.delete()
+            await confirm_message.delete()
             return
         
         else:
             if str(reaction.emoji) == "❌":
-                confirm_message.delete()
+                await confirm_message.delete()
                 return
             else: 
                 if str(reaction.emoji) == "✅":
