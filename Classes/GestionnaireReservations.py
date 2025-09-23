@@ -9,7 +9,7 @@ class GestionnaireReservations:
         self.db = db
         self.collection = db["ReservationPercepteur"]        
         self.zonelist = []
-        config_file = "./zone.json"
+        config_file = "./souszone_array.json"
 
         with open(config_file, "r", encoding="utf-8") as f:
             data = json.load(f)
