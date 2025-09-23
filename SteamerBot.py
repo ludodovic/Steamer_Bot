@@ -60,17 +60,20 @@ def get_content_for_master_message():
 async def update_master_message():
     await client.master_message.edit(content=get_content_for_master_message(), embeds = client.master_message_embed_list)
 
-async def update_users_about_reservations():
-    expired_info = gestionnaire_resa.purge_expired_reservations()
+async def update_users_about_reservations(deleted_reservation = None):
+    print("updating users about reservations...")
+    expired_info = gestionnaire_resa.purge_expired_reservations(deleted_reservation = deleted_reservation)
     for info in expired_info["to_notify"]:
         user_id = int(info["user_id"])
         zone = info["zone"]
+        print(f"notifying user {user_id} about expired reservation for zone {zone}")
         await send_user_message(user_id, f"[SCTV] Ta réservation pour la zone '{zone}' a expiré. N'hésite pas à en réserver une nouvelle !")
     
     for info in expired_info["next_turn"]:
         if info is not None:
             user_id = int(info["user_id"])
             zone = info["zone"]
+            print(f"notifying user {user_id} about expired reservation for zone {zone}")
             await send_user_message(user_id, f"[SCTV] C'est à ton tour ! La réservation pour la zone '{zone}' est maintenant active pour toi. Profites-en !")
 
 async def send_user_message(user_id, content):
@@ -104,7 +107,6 @@ async def initialize(context, channel_id: int = None):
                 return
         else:
             return
-        await send_user_message(169098343362985984, f"Initialisation en cours sur {message.guild.name}")
         client.master_message = await client.master_channel.send(content=get_content_for_master_message(), embeds = client.master_message_embed_list)
         client.initialized = True
     await update_users_about_reservations()
@@ -150,6 +152,7 @@ async def resa(context):
                     if result == False:
                         await client.master_channel.send(f"[{user_name}] Désolé {message.author.mention}, tu as déjà 3 réservations actives ou la zone '{matched_zone}' a atteint sa capacité maximale de réservations.", delete_after=20.0)
                     else:
+                        print(f"Reservation successful for user {user_name} in zone {matched_zone} until {exp_date}")
                         await client.master_channel.send(f"[{user_name}] Réservation confirmée pour la zone '{matched_zone}' ! Ta réservation expirera le {get_date_in_french_format(exp_date)}.", delete_after=20.0)
                         await update_master_message()
 
@@ -160,6 +163,7 @@ async def clear(context):
     if message.author == client.user:
         return
 
+    deleted_copy = None
     zone_query = message.content[6:50]
     matched_zone = gestionnaire_resa.fuzzy_match_zone_by_name(zone_query)
     if matched_zone == "":
@@ -188,13 +192,14 @@ async def clear(context):
                 if str(reaction.emoji) == "✅":
                     await confirm_message.delete()
                     user_id = str(message.author.id)
-                    result = gestionnaire_resa.delete_reservation(user_id, matched_zone)
+                    result, deleted_copy = gestionnaire_resa.delete_reservation(user_id, matched_zone)
                     if result == False:
                         await client.master_channel.send(f"[{user_name}] Je n'ai pas trouvé de réservation active pour la zone '{matched_zone}' à ton nom. Pas besoin de t'inquiéter, rien n'a été supprimé.", delete_after=20.0)
                     else:
+                        print(f"Reservation cleared for user {user_name} in zone {matched_zone}")
                         await client.master_channel.send(f"[{user_name}] Réservation terminée pour la zone '{matched_zone}' ! La place est libérée.", delete_after=20.0)
                         await update_master_message()
-    await update_users_about_reservations()
+    await update_users_about_reservations(deleted_reservation = deleted_copy)
 
 @client.command(pass_context=True)
 async def update(context):

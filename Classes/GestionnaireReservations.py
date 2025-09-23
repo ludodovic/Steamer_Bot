@@ -91,14 +91,18 @@ class GestionnaireReservations:
     def delete_reservation(self, user_id, zone_name):
         if user_id != "" and zone_name != "":
             result = self.collection.delete_one({"user_id": user_id, "zone": zone_name})
-            return result.deleted_count > 0
-        return False
+            if result.deleted_count > 0:
+                return True, {"user_id": user_id, "zone": zone_name}
+        return False, None
     
-    def purge_expired_reservations(self):
+    def purge_expired_reservations(self, deleted_reservation = None):
         now = datetime.now()
         expired_to_notify = list(self.collection.find({"exp_date": {"$lt": now}}, {"_id": 0, "user_id": 1, "zone": 1}))
         result = self.collection.delete_many({"exp_date": {"$lt": now}})
         next_turn_to_notify = []
+        if deleted_reservation is not None:
+            next_turn_to_notify.append(self.collection.find_one({"zone": deleted_reservation["zone"]}, {"_id": 0, "user_id": 1, "zone": 1}, sort=[("date", ASCENDING)]))
         for r in expired_to_notify:
             next_turn_to_notify.append(self.collection.find_one({"zone": r["zone"]}, {"_id": 0, "user_id": 1, "zone": 1}, sort=[("date", ASCENDING)]))
-        return {"deleted_count": result.deleted_count, "to_notify": expired_to_notify, "next_turn": next_turn_to_notify}
+        ret = {"deleted_count": result.deleted_count, "to_notify": expired_to_notify, "next_turn": next_turn_to_notify}
+        return ret
