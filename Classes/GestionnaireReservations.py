@@ -74,15 +74,17 @@ class GestionnaireReservations:
             else:
                 reservation_by_zone[resa["zone"]].append(resa["user"])
 
+        resa_list_len = 4
+
         reservation_body = []
         for key in reservation_by_zone.keys():
-            if len(reservation_by_zone[key]) < 7:
-                while len(reservation_by_zone[key]) < 7:
+            if len(reservation_by_zone[key]) < resa_list_len:
+                while len(reservation_by_zone[key]) < resa_list_len:
                     reservation_by_zone[key].append("---")
-            reservation_body.append(reservation_by_zone[key])
+            reservation_body.append(reservation_by_zone[key][:resa_list_len])
 
         output = t2a(
-            header = ["Zone", "|","Droit de pose" ,"En attente n°1" ,"En attente n°2", "En attente n°3", "En attente n°4"],
+            header = ["Zone", "|","Droit de pose" ,"En attente n°1"],
             body= reservation_body,
             style = PresetStyle.thin_compact
         )

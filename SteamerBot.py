@@ -109,6 +109,7 @@ async def initialize(context, channel_id: int = None):
             return
         client.master_message = await client.master_channel.send(content=get_content_for_master_message(), embeds = client.master_message_embed_list)
         client.initialized = True
+        await client.tree.sync()
     await update_users_about_reservations()
 
 @client.command(pass_context=True)
