@@ -5,6 +5,10 @@ from datetime import datetime, timedelta
 from table2ascii import table2ascii as t2a, PresetStyle
 
 class GestionnaireReservations:
+
+    len_user_name = 10
+    len_zone_name = 15
+
     def __init__(self, db):
         self.db = db
         self.collection = db["ReservationPercepteur"]        
@@ -69,12 +73,12 @@ class GestionnaireReservations:
         reservation_by_zone = {}
 
         for resa in cursor:
-            if len(resa["user"]) > 10:
-                user_short = f"{resa['user'][:10]}."
+            if len(resa["user"]) > self.len_user_name:
+                user_short = f"{resa['user'][:self.len_user_name]}."
             else:
                 user_short = resa["user"]
-            if len(resa["zone"]) > 10:
-                zone_short = f"{resa['zone'][:10]}."
+            if len(resa["zone"]) > self.len_zone_name:
+                zone_short = f"{resa['zone'][:self.len_zone_name]}."
             else:                
                 zone_short = resa["zone"]
             
