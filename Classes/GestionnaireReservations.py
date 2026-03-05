@@ -46,7 +46,7 @@ class GestionnaireReservations:
         if last_zone_reservation is not None:
             reservation["exp_date"] = last_zone_reservation["exp_date"] + timedelta(hours=24)
 
-        if nbr_reservations >= 3 or zone_reservations_count >= 5:
+        if nbr_reservations >= 5 or zone_reservations_count >= 5:
             return None, False
         else:
             if self.collection.find_one({"user_id": reservation["user_id"], "zone": reservation["zone"]}) is not None:
