@@ -69,10 +69,19 @@ class GestionnaireReservations:
         reservation_by_zone = {}
 
         for resa in cursor:
-            if reservation_by_zone.get(resa["zone"]) is None:
-                reservation_by_zone[resa["zone"]] = [resa["zone"], "|",resa["user"]]
+            if len(resa["user"]) > 10:
+                user_short = f"{resa['user'][:10]}."
             else:
-                reservation_by_zone[resa["zone"]].append(resa["user"])
+                user_short = resa["user"]
+            if len(resa["zone"]) > 10:
+                zone_short = f"{resa['zone'][:10]}."
+            else:                
+                zone_short = resa["zone"]
+            
+            if reservation_by_zone.get(resa["zone"]) is None:
+                reservation_by_zone[resa["zone"]] = [zone_short, "|",user_short]
+            else:
+                reservation_by_zone[resa["zone"]].append(user_short)
 
         resa_list_len = 4
 
@@ -84,9 +93,9 @@ class GestionnaireReservations:
             reservation_body.append(reservation_by_zone[key][:resa_list_len])
 
         output = t2a(
-            header = ["Zone", "|","Droit de pose" ,"En attente n°1"],
+            header = ["Zone", "|","Poseur" ,"En attente"],
             body= reservation_body,
-            style = PresetStyle.thin_compact
+            style = PresetStyle.borderless
         )
         return output
     
