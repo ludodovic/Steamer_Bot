@@ -7,7 +7,8 @@ from table2ascii import table2ascii as t2a, PresetStyle
 class GestionnaireReservations:
 
     len_user_name = 10
-    len_zone_name = 15
+    len_zone_name = 20
+    reservation_timer_H = 6
 
     def __init__(self, db):
         self.db = db
@@ -25,7 +26,7 @@ class GestionnaireReservations:
                 "user": user,
                 "user_id": user_id,
                 "date": datetime.now(),
-                "exp_date": datetime.now() + timedelta(hours=24),
+                "exp_date": datetime.now() + timedelta(hours=self.reservation_timer_H),
                 "zone": zone_id
             }
         else:
@@ -48,7 +49,7 @@ class GestionnaireReservations:
         # get the lastest reservation for the zone if it exists
         last_zone_reservation = self.collection.find_one({"zone": reservation["zone"]},sort=[("date", DESCENDING)])
         if last_zone_reservation is not None:
-            reservation["exp_date"] = last_zone_reservation["exp_date"] + timedelta(hours=24)
+            reservation["exp_date"] = last_zone_reservation["exp_date"] + timedelta(hours=self.reservation_timer_H)
 
         if nbr_reservations >= 5 or zone_reservations_count >= 5:
             return None, False
