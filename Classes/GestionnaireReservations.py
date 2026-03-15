@@ -4,21 +4,20 @@ from pymongo import ASCENDING, DESCENDING
 from datetime import datetime, timedelta
 from table2ascii import table2ascii as t2a, PresetStyle
 
+from Classes.DofusDBConnector import DofusDBConnector
+
 class GestionnaireReservations:
 
     len_user_name = 10
     len_zone_name = 20
     reservation_timer_H = 6
+    api_base_url = "https://api.dofusdb.fr"
 
     def __init__(self, db):
         self.db = db
-        self.collection = db["ReservationPercepteur"]        
-        self.zonelist = []
-        config_file = "./souszone_array.json"
-
-        with open(config_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            self.zonelist = data["zonelist"]
+        self.collection = db["ReservationPercepteur"]
+        self.dofus_db_connector = DofusDBConnector(self.api_base_url)
+        self.zone_list = self.dofus_db_connector.get_zone_list()
     
     def create_reservation(self, user, user_id, zone_id):
         if user != "" and zone_id != "":
@@ -61,11 +60,11 @@ class GestionnaireReservations:
     
     def fuzzy_match_zone_by_name(self, query_zone):
         coef = 0
-        for zone in self.zonelist:
+        for zone, alias in self.zone_list.items():
             score = fuzz.ratio(query_zone, zone)
             if score > coef:
                 coef = score
-                best_match = zone
+                best_match = alias
         return best_match if coef >= 65 else ""
     
     def get_table_string(self):
