@@ -9,7 +9,7 @@ from Classes.DofusDBConnector import DofusDBConnector
 class GestionnaireReservations:
 
     len_user_name = 10
-    len_zone_name = 20
+    len_zone_name = 25
     reservation_timer_H = 6
     api_base_url = "https://api.dofusdb.fr"
 
